@@ -141,7 +141,7 @@ def scan_network(interface):
                     mac = parts[1].strip()
                     ips.append(ip)
                     macs.append(mac)
-                    names.append(f"Dispositivo {len(names) + 1}")  # Asignar nombres genéricos
+                    names.append(f"User {len(names) + 1}")  # Asignar nombres genéricos
 
         return ips, macs, names
 

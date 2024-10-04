@@ -18,14 +18,14 @@ class Router_UI(tk.Tk):
         self.devices_icon = useful_func.open_img("./devices_icon.png", (30,30) )
         self.un_logo=useful_func.open_img("./un_logo.png", (80,80) )
         self.channels_list= server_commands.Channels()
-        self.status_v='Activado'
+        self.status_v='Online'
         self.conf_windows()
         self.confpanels()
         self.tf_controls()
         self.sf_controls()
 
     def conf_windows(self):
-        self.title("BeaglePlay router status")
+        self.title("BeaglePlay router")
         w, h = 1024, 600        
         useful_func.centerw(self, w, h)   
 
@@ -49,7 +49,7 @@ class Router_UI(tk.Tk):
         self.welcome.config(fg="#fff",bg=colors.TF_color, pady=10, font=("Times", 12))
         self.welcome.pack(side=tk.LEFT)
 
-        self.stem_info = tk.Label(self.toppanel,text="Juan-Sergio",fg="#fff",bg=colors.TF_color, 
+        self.stem_info = tk.Label(self.toppanel,text="Juan D. Martinez-Sergio A. Cuadrado",fg="#fff",bg=colors.TF_color, 
                                    pady=10, font=("Times", 10))
         self.stem_info.pack(side= tk.RIGHT)
     
@@ -87,13 +87,13 @@ class Router_UI(tk.Tk):
         self.headers=tk.Frame(self.principal, height=60)
         self.headers.pack(side=tk.TOP, fill='both')
 
-        self.name= tk.Label(self.headers, text='Nombre del dispositivo', font=('Times',14), height=6,width=20,
+        self.name= tk.Label(self.headers, text='Device name', font=('Times',14), height=6,width=20,
                             relief="raised", borderwidth=2)
         self.name.pack(side=tk.LEFT, expand=True, fill='both')
-        self.ip= tk.Label(self.headers, text='IP del dispositivo',font=('Times',14), height=6,width=20,
+        self.ip= tk.Label(self.headers, text='Device IP',font=('Times',14), height=6,width=20,
                           relief="raised", borderwidth=1)
         self.ip.pack(side=tk.LEFT, expand=True,fill='both')
-        self.MAC= tk.Label(self.headers, text='MAC del dispositivo',font=('Times',14), height=6,width=20,
+        self.MAC= tk.Label(self.headers, text='Device MAC',font=('Times',14), height=6,width=20,
                            relief="raised", borderwidth=1)
         self.MAC.pack(side=tk.LEFT, expand=True,fill='both')
 
@@ -127,19 +127,19 @@ class Router_UI(tk.Tk):
         self.settings_save=tk.Frame(self.principal)
         self.settings_save.pack(side=tk.TOP,expand=True,fill= 'both')
 
-        self.l_range=tk.Label(self.settings_range, text='Seleccione un rango de ip', font=('Times',18),
+        self.l_range=tk.Label(self.settings_range, text='Select an ip range', font=('Times',18),
                               padx=15,width=20)
         self.l_range.pack(side=tk.LEFT, fill='both',expand=True)
         self.range= ttk.Combobox(self.settings_range,values=['10.0.0.10 10.0.0.100'])
         self.range.pack(side=tk.LEFT, fill='x',expand=True,padx=20)
-        self.l_channel=tk.Label(self.settings_channels, text='Seleccione un canal disponible', font=('Times',18),
+        self.l_channel=tk.Label(self.settings_channels, text='Select an available channel', font=('Times',18),
                                 padx=15,width=20)
         self.l_channel.pack(side=tk.LEFT,fill='both',expand=True)
 
         self.channels= ttk.Combobox(self.settings_channels, values=self.channels_list)
         self.channels.pack(side=tk.LEFT,fill='x',expand=True,padx=20)
 
-        self.l_save= tk.Label(self.settings_save, text='Desea guardar la nueva configuración',font=('Times',18),
+        self.l_save= tk.Label(self.settings_save, text='Save the configuration',font=('Times',18),
                               width=20,padx=15)
         self.l_save.pack(side=tk.LEFT,fill='both',expand=True)
         self.save_conf= tk.Button(self.settings_save,text='SAVE',font=('Times',14),relief='raised',borderwidth=2,
@@ -171,12 +171,12 @@ class Router_UI(tk.Tk):
 
 
         
-        self.l_status=tk.Label(self.status, text=f'El servidor está {self.status_v}', font=('Times',18),
+        self.l_status=tk.Label(self.status, text=f'The server is {self.status_v}', font=('Times',18),
                               padx=15,width=20)
         self.l_status.pack(side=tk.LEFT, fill='both')
       
 
-        self.l_start=tk.Label(self.start, text='Activar la red', font=('Times',18),
+        self.l_start=tk.Label(self.start, text='Activate the network', font=('Times',18),
                                 padx=15,width=20)
         self.l_start.pack(side=tk.LEFT,fill='both',expand=True)
 
@@ -186,7 +186,7 @@ class Router_UI(tk.Tk):
 
 
 
-        self.l_restart=tk.Label(self.restart, text='Reiniciar la red', font=('Times',18),
+        self.l_restart=tk.Label(self.restart, text='Restart the network', font=('Times',18),
                                 padx=15,width=20)
         self.l_restart.pack(side=tk.LEFT,fill='both',expand=True)
         self.restart_b= tk.Button(self.restart,text='RESTART',font=('Times',14),relief='raised',borderwidth=2,
@@ -194,7 +194,7 @@ class Router_UI(tk.Tk):
         self.restart_b.pack(side=tk.LEFT,fill='x',expand=True,padx=20)
 
 
-        self.l_stop=tk.Label(self.stop, text='Desactivar la red', font=('Times',18),
+        self.l_stop=tk.Label(self.stop, text='Deactivate the network', font=('Times',18),
                                 padx=15,width=20)
         self.l_stop.pack(side=tk.LEFT,fill='both',expand=True)
         self.stop_b= tk.Button(self.stop,text='STOP',font=('Times',14),relief='raised',borderwidth=2,
@@ -204,18 +204,19 @@ class Router_UI(tk.Tk):
 
     def start_net(self):
         server_commands.start_server()
-        self.status_v= 'Activo'
+        self.status_v= 'Online'
         self.status_panel()
 
     def restart_net(self):
-        self.status_v= 'Reiniciando'
+        self.status_v= 'Restarting'
+        self.status_panel()
         server_commands.restart_server()
-        self.status_v='Activo'
+        self.status_v='Online'
         self.status_panel()
 
     def stop_net(self):
         server_commands.stop_server()
-        self.status_v='Apagado'
+        self.status_v='Offline'
         self.status_panel()
     
 
