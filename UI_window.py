@@ -12,11 +12,11 @@ class Router_UI(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.op_icon = useful_func.open_img("./images/op_icon.png", (20,20) )
-        self.status_icon = useful_func.open_img("./images/status_icon.png", (30,30) )
-        self.settings_icon = useful_func.open_img("./images/settings_icon.png", (50,30) )
-        self.devices_icon = useful_func.open_img("./images/devices_icon.png", (30,30) )
-        self.un_logo=useful_func.open_img("./images/un_logo.png", (80,80) )
+        self.op_icon = useful_func.open_img("./op_icon.png", (20,20) )
+        self.status_icon = useful_func.open_img("./status_icon.png", (30,30) )
+        self.settings_icon = useful_func.open_img("./settings_icon.png", (50,30) )
+        self.devices_icon = useful_func.open_img("./devices_icon.png", (30,30) )
+        self.un_logo=useful_func.open_img("./un_logo.png", (80,80) )
         self.channels_list= server_commands.Channels()
         self.status_v='Activado'
         self.conf_windows()
