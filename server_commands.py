@@ -3,24 +3,21 @@ import subprocess
 import re
 from collections import defaultdict
 
-
+#Host control, start, restart y stop functionalities
 
 def start_server():
-    subprocess.run(['sudo','systemctl','start','hostapd'])
-    subprocess.run(['sudo','systemctl','start','isc-dhcp-sever'])
+    subprocess.run( ['sudo','systemctl','start','hostapd']) 
 
 def restart_server():
     subprocess.run('sudo','systemctl','restart','hostapd')
-    subprocess.run('sudo','systemctl','restart','isc-dhcp-sever')
 
 def stop_server():
     subprocess.run('sudo','systemctl','stop','hostapd')
-    subprocess.run('sudo','systemctl','stop','isc-dhcp-sever')
 
 
 
 #### Wifi-Detected
-#### Escanea los canales disponibles y se conecta al canal mas libre.
+#### Escanea los canales disponibles y se retorna los canales más libre.
 
 def scan_channels(interface):
     subprocess.run(
@@ -78,7 +75,7 @@ def select_best_channels(channels_usage, n=3):
 
     return [channel for channel, usage in best_channels]
 
-
+#Modifica las lines del archivo de configuración del hostapd
 def configure_hostapd(channel, hostapd_conf_path='/etc/hostapd/hostapd.conf'):
 
 
@@ -112,118 +109,10 @@ def Channels():
     # Seleccionar los 3 mejores canales
     best_channels = select_best_channels(channels_usage, n=3)
 
-    subprocess.run(
-    ['sudo','systemctl','start','hostapd'])
+    subprocess.run(['sudo','systemctl','start','hostapd'])
 
     return best_channels
 
-
-
-    
-
-
-
-
-
-
-
-### Detecta os dispositivos conectados a la red y nos entrega su MAC y su direccion ip, adicional a ello 
-# def scan_network(interface):
-#     """
-#     Scans the network using arp-scan and returns the list of IPs and MAC addresses.
-#     """
-#     print(f"Escaneando la red en la interfaz {interface}...")
-
-#     try:
-#         # Running the arp-scan command to discover connected devices
-#         result = subprocess.run(['sudo', 'arp-scan', '-l', '-I', interface],capture_output=True, text=True)
-
-#         if result.returncode != 0:
-#             print(f"Error al ejecutar arp-scan: {result.stderr}")
-#             return []
-
-#         # Process the arp-scan output
-#         devices = []
-#         for line in result.stdout.splitlines():
-#             if "\t" in line:
-#                 parts = line.split("\t")
-#                 if len(parts) >= 2:
-#                     ip = parts[0].strip()
-#                     mac = parts[1].strip()
-#                     devices.append((ip, mac))
-
-#         return devices
-
-#     except Exception as e:
-#         print(f"Hubo un error al escanear la red: {e}")
-#         return []
-    
-
-# def get_device_info(ip):
-#     """
-#     Use nmap to get detailed information about a specific device (IP).
-#     """
-#     print(f"Obteniendo informaci      n detallada del dispositivo en {ip}...")
-
-#     try:
-#         # Running the nmap command for detailed information
-#         result = subprocess.run(
-#             ['sudo', 'nmap', '-sP', ip],  # Scan for ping and services
-#             capture_output=True, text=True
-#         )
-
-#         if result.returncode == 0:
-#             return result.stdout
-#         else:
-#             return f"Error al escanear {ip}: {result.stderr}"
-
-#     except Exception as e:
-#         return f"Error al ejecutar nmap para {ip}: {e}"
-
-# def extract_hostname(nmap_output):
-#     """
-#     Extract the hostname from the nmap output.
-#     """
-#     hostnames = {}
-
-#     # Extracting the IP and hostname
-#     current_ip = ""
-#     for line in nmap_output.splitlines():
-#         if "Nmap scan report for" in line:
-#             current_ip = line.split(" ")[-1]  # The last part is the IP address
-#         elif "MAC Address:" in line:
-#             # Attempt to extract the hostname from the MAC address line
-#             hostname_match = re.search(r'\((.*?)\)', line)
-#             hostname = hostname_match.group(1) if hostname_match else "Unknown"
-#             hostnames[current_ip] = hostname
-
-#     return hostnames    
-
-# if __name__ == "__main__":
-#     # Replace 'wlan0' with your actual interface name
-#     network_interface = "wlan0"
-
-#     # First, scan the network using arp-scan
-#     devices = scan_network(network_interface)
-
-#     if not devices:
-#         print("No se encontraron dispositivos.")
-#     else:
-#         print("\nDispositivos conectados encontrados:")
-#         for idx, (ip, mac) in enumerate(devices, start=1):
-#             print(f"{idx}. IP: {ip}, MAC: {mac}")
-
-#         # For each discovered device, run a detailed scan with nmap
-#         for ip, mac in devices:
-#             detailed_info = get_device_info(ip)
-#             print(f"\nInformaci      n detallada para {ip} ({mac}):\n{detailed_info}")
-
-#             # Extract hostname from nmap output
-#             hostnames = extract_hostname(detailed_info)
-#             if ip in hostnames:
-#                 print(f"Nombre de dispositivo: {hostnames[ip]}")
-#             else:
-#                 print(f"Nombre de dispositivo: Desconocido")
 
 
 

@@ -17,7 +17,7 @@ class Router_UI(tk.Tk):
         self.settings_icon = useful_func.open_img("./images/settings_icon.png", (50,30) )
         self.devices_icon = useful_func.open_img("./images/devices_icon.png", (30,30) )
         self.un_logo=useful_func.open_img("./images/un_logo.png", (80,80) )
-        self.channels_list= server_commands.channels()
+        self.channels_list= server_commands.Channels()
         self.status_v='Activado'
         self.conf_windows()
         self.confpanels()
@@ -98,8 +98,8 @@ class Router_UI(tk.Tk):
         self.MAC.pack(side=tk.LEFT, expand=True,fill='both')
 
 
-        I,M,N = server_commands.devices()
-        n=len(N)
+        n,N,I,M = server_commands.devices()
+        
         for i in range(0,n):
             
             self.devices_info=tk.Frame(self.principal)
