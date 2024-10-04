@@ -9,10 +9,10 @@ def start_server():
     subprocess.run( ['sudo','systemctl','start','hostapd']) 
 
 def restart_server():
-    subprocess.run('sudo','systemctl','restart','hostapd')
+    subprocess.run(['sudo','systemctl','restart','hostapd'])
 
 def stop_server():
-    subprocess.run('sudo','systemctl','stop','hostapd')
+    subprocess.run(['sudo','systemctl','stop','hostapd'])
 
 
 
