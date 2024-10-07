@@ -3,32 +3,46 @@ import subprocess
 import re
 from collections import defaultdict
 
-#Host control, start, restart y stop functionalities
+# Host control: Funcionalidades para iniciar, reiniciar y detener el servidor hostapd.
 
 def start_server():
-    subprocess.run( ['sudo','systemctl','start','hostapd']) 
+    """
+    Inicia el servicio 'hostapd'.
+    """
+    subprocess.run(['sudo','systemctl','start','hostapd']) 
 
 def restart_server():
+    """
+    Reinicia el servicio 'hostapd'.
+    """
     subprocess.run(['sudo','systemctl','restart','hostapd'])
 
 def stop_server():
+    """
+    Detiene el servicio 'hostapd'.
+    """
     subprocess.run(['sudo','systemctl','stop','hostapd'])
 
 
-
-#### Wifi-Detected
-#### Escanea los canales disponibles y se retorna los canales más libre.
+#### Escaneo de canales Wi-Fi disponibles y selección de los menos ocupados.
 
 def scan_channels(interface):
-    subprocess.run(
-    ['sudo','systemctl','stop','hostapd'])
     """
     Escanea los canales Wi-Fi en busca de redes activas y retorna la cantidad de redes por canal.
+    
+    Parámetros:
+    - interface: la interfaz de red que se va a usar para el escaneo, en este caso "wlan0"
+
+    Retorna:
+    - Un diccionario con el número de redes por cada canal detectado.
     """
+    # Detiene el servicio hostapd antes de escanear.
+    subprocess.run(['sudo','systemctl','stop','hostapd'])
+
     print(f"Escaneando canales Wi-Fi en la interfaz {interface}...")
 
     try:
-        # Ejecutar el comando iwlist para escanear canales
+        # Ejecutar el comando 'iwlist' para escanear canales.
         result = subprocess.run(
             ['sudo', 'iwlist', interface, 'scan'],
             capture_output=True, text=True
@@ -38,12 +52,12 @@ def scan_channels(interface):
             print(f"Error al escanear canales: {result.stderr}")
             return {}
 
-        # Procesar la salida para contar redes por canal
+        # Procesar la salida para contar redes por canal.
         channels_usage = defaultdict(int)
         cells = result.stdout.split("Cell ")
 
         for cell in cells[1:]:
-            # Extraer el canal
+            # Extraer el canal de cada red detectada.
             channel = re.search(r"Channel:(\d+)", cell)
             if channel:
                 channel = int(channel.group(1))
@@ -54,19 +68,26 @@ def scan_channels(interface):
     except Exception as e:
         print(f"Error al escanear canales: {e}")
         return {}
-    
+
 def select_best_channels(channels_usage, n=3):
     """
-    Selecciona los 'n' mejores canales con menos uso.
+    Selecciona los 'n' mejores canales (menos congestionados) con menos uso.
+
+    Parámetros:
+    - channels_usage: diccionario con el número de redes por canal.
+    - n: cantidad de canales a seleccionar (por defecto 3).
+
+    Retorna:
+    - Lista con los 3 mejores canales.
     """
     if not channels_usage:
         print("No se encontraron canales disponibles.")
         return None
 
-    # Ordenar los canales por el n      mero de redes en cada uno (de menor a mayor)
+    # Ordenar los canales por el número de redes en cada uno (de menor a mayor).
     sorted_channels = sorted(channels_usage.items(), key=lambda x: x[1])
 
-    # Obtener los 'n' mejores canales
+    # Obtener los 'n' mejores canales.
     best_channels = sorted_channels[:n]
 
     print(f"Mejores {n} canales encontrados:")
@@ -75,20 +96,27 @@ def select_best_channels(channels_usage, n=3):
 
     return [channel for channel, usage in best_channels]
 
-#Modifica las lines del archivo de configuración del hostapd
+
+# Modifica el archivo de configuración del hostapd para seleccionar el canal óptimo.
+
 def configure_hostapd(channel, hostapd_conf_path='/etc/hostapd/hostapd.conf'):
+    """
+    Configura el archivo hostapd.conf para cambiar el canal utilizado por el punto de acceso.
 
-
+    Parámetros:
+    - channel: el canal a configurar en hostapd.
+    - hostapd_conf_path: ruta del archivo de configuración de hostapd (por defecto '/etc/hostapd/hostapd.conf').
+    """
     try:
-        # Leer el archivo hostapd.conf
+        # Leer el archivo hostapd.conf.
         with open(hostapd_conf_path, 'r') as file:
             config = file.readlines()
 
-        # Actualizar el canal en el archivo de configuracion
+        # Actualizar el canal en el archivo de configuración.
         with open(hostapd_conf_path, 'w') as file:
             for line in config:
                 if line.startswith('channel='):
-                    file.write(f'channel={channel}\n')  # Utiliza el primer canal de la lista
+                    file.write(f'channel={channel}\n')  # Utiliza el primer canal de la lista.
                 else:
                     file.write(line)
 
@@ -97,39 +125,51 @@ def configure_hostapd(channel, hostapd_conf_path='/etc/hostapd/hostapd.conf'):
     except Exception as e:
         print(f"Error al configurar hostapd: {e}")
 
-        
 
 def Channels():
-
+    """
+    Realiza un escaneo de canales Wi-Fi y selecciona los 3 mejores canales disponibles.
+    
+    Retorna:
+    - Lista con los mejores canales.
+    """
     network_interface = "wlan0"
 
-    # Escanear los canales disponibles
+    # Escanear los canales disponibles.
     channels_usage = scan_channels(network_interface)
 
-    # Seleccionar los 3 mejores canales
+    # Seleccionar los 3 mejores canales.
     best_channels = select_best_channels(channels_usage, n=3)
 
+    # Reinicia el servicio hostapd.
     subprocess.run(['sudo','systemctl','start','hostapd'])
 
     return best_channels
 
 
-
+#### Escaneo de dispositivos conectados en la red mediante ARP-scan.
 
 def scan_network(interface):
     """
-    Scans the network using arp-scan and returns the list of IPs and MAC addresses.
+    Escanea la red utilizando arp-scan y retorna las listas de IPs y direcciones MAC de los dispositivos conectados.
+
+    Parámetros:
+    - interface: la interfaz de red utilizada para el escaneo (p. ej., 'wlan0').
+
+    Retorna:
+    - Una lista de IPs, una lista de direcciones MAC y una lista de nombres asignados.
     """
     print(f"Escaneando la red en la interfaz {interface}...")
 
     try:
+        # Ejecutar el comando arp-scan.
         result = subprocess.run(['sudo', 'arp-scan', '-l', '-I', interface], capture_output=True, text=True)
 
         if result.returncode != 0:
             print(f"Error al ejecutar arp-scan: {result.stderr}")
             return [], [], []
 
-        # Process the arp-scan output
+        # Procesar la salida de arp-scan.
         ips = []
         macs = []
         names = []
@@ -141,7 +181,7 @@ def scan_network(interface):
                     mac = parts[1].strip()
                     ips.append(ip)
                     macs.append(mac)
-                    names.append(f"User {len(names) + 1}")  # Asignar nombres genéricos
+                    names.append(f"User {len(names) + 1}")  # Asignar nombres genéricos.
 
         return ips, macs, names
 
@@ -151,10 +191,17 @@ def scan_network(interface):
 
 def devices():
     """
-    Función que retorna la cantidad de dispositivos, sus nombres, IPs y MACs.
+    Función que retorna la cantidad de dispositivos conectados, junto con sus nombres, IPs y MACs.
+
+    Retorna:
+    - Número de dispositivos conectados.
+    - Lista de nombres asignados a los dispositivos.
+    - Lista de direcciones IP de los dispositivos.
+    - Lista de direcciones MAC de los dispositivos.
     """
     network_interface = "wlan0"
     
+    # Escanea la red para obtener dispositivos conectados.
     ips, macs, names = scan_network(network_interface)
     number = len(ips)
 
