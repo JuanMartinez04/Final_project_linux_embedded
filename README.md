@@ -68,6 +68,7 @@ iface wlan0 inet static
  -Por último reiniciar el servidor
 ~~~
 sudo systemctl restart isc-dhcp-server
+sudo systemctl restart hostapd
 ~~~
 
 ## Requisitos para ejecutar la interfaz
