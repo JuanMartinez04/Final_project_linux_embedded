@@ -56,9 +56,12 @@ DAEMON_CONF="/etc/hostapd/hostapd.conf"
   option domain-name-server 8.8.8.8 ;}
 
  ~~~
+- Configuración del _/etc/default/isc-dhcp-server_:
+ ~~~
+INTERFACESv4="wlan0"
+ ~~~
 
-
-- Configuración de una IP fija en _/etc/default/dhcp_:
+- Configuración de una IP fija en _/etc/network/interfaces_:
 ~~~
 auto wlan0
 iface wlan0 inet static
@@ -67,6 +70,7 @@ iface wlan0 inet static
 ~~~
  -Por último reiniciar el servidor
 ~~~
+sudo systemctl restart networking
 sudo systemctl restart isc-dhcp-server
 sudo systemctl restart hostapd
 ~~~
